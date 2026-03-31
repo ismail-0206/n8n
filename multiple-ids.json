@@ -1,0 +1,155 @@
+{
+  "name": "multiple-ids",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cd32c9db-7bac-4863-8b20-f4fea20df0c8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  // add a maximum of 50 ids here\n  ids: [\"jNQXAC9IVRw\", \"7rrqGtxCjhE\"]\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "810c569a-01da-4012-b61f-3b914ac303a8",
+      "name": "Data Source"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.youtube-transcript.io/api/transcripts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Basic {{ $vars.API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"ids\": [{{ $json.ids.map(item => `\"${item}\"`) }}]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "57897931-c40a-44bf-a65a-b592c45f5aae",
+      "name": "Get Transcripts"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        0
+      ],
+      "id": "f83f3ec4-823f-4e8b-8b29-527c92dc4446",
+      "name": "Download as CSV"
+    },
+    {
+      "parameters": {
+        "content": "## How to use\n1. Create a variable named **API_KEY** with your API token as value. You can set variables [here](/variables).\n2. add your list of video ids in the **Data Source** node, or replace this node with your own source.",
+        "height": 176,
+        "width": 288,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "60abc898-7efd-4f67-87e3-5afb7c0fe173",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "const trackToText = (track) => {\n  return track.transcript.map(t => t.text).join(' ');\n}\nreturn $input.all().reduce((acc, cur) => ({...acc, [cur.json.id]: trackToText(cur.json.tracks[0])}), {})"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "8793f360-2e5f-465b-aa31-623d8d6757f3",
+      "name": "Convert Response"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Data Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Source": {
+      "main": [
+        [
+          {
+            "node": "Get Transcripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcripts": {
+      "main": [
+        [
+          {
+            "node": "Convert Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Response": {
+      "main": [
+        [
+          {
+            "node": "Download as CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "10d87589-5c82-4204-9a27-407d79575b40",
+  "meta": {
+    "instanceId": "5ff5b156e6cad079cd755991a44a8f06322767f6ee3d3e78754ae01fd37e8c86"
+  },
+  "id": "b6RnRVCXeTWmzdaF",
+  "tags": []
+}
